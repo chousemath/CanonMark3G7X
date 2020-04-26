@@ -12,28 +12,35 @@ export default function App() {
     const rotation1 = new Animated.Value(0);
     let rotation1Value = 0;
     let responder1Timeout;
-    let rotation1Paused = false;
     const between = (x, min, max) => x >= min && x <= max;
+    const animateRotation1 = (valueAdd) => {
+        rotation1Value += valueAdd
+        Animated.timing(rotation1, {
+            toValue: rotation1Value,
+            duration: 90,
+            useNativeDriver: true,
+        }).start();
+    };
     const panResponder1 = PanResponder.create({
         onStartShouldSetPanResponder: (evt, gestureState) => true,
+        onPanResponderGrant: async (evt, gestureState) => {
+            const {locationX, locationY} = evt.nativeEvent;
+            console.log('locationX:', locationX, ', locationY:', locationY);
+            const {pageX, pageY} = evt.nativeEvent;
+            console.log('pageX:', pageX, ', pageY:', pageY);
+        },
         onPanResponderMove: (evt, gestureState) => {
-            if (rotation1Paused) return;
-            const { dx, dy } = gestureState;
-            // console.log(`dx: ${dx}, dy: ${dy}`);
-            // const change = Math.floor(Math.min(dx, dy) * -1);
-            const change = Math.floor(-dy);
-            console.log('change:', change);
-            if (!between(change, 90, 100) && !between(change, -100, -90))
-                return;
-            console.log('past between');
-            rotation1Value += Math.sign(change) * 36;
-            Animated.timing(rotation1, {
-                toValue: rotation1Value,
-                duration: 100,
-                useNativeDriver: true,
-            }).start();
-            rotation1Paused = true;
-            setTimeout(() => (rotation1Paused = false), 300);
+            const { dy } = gestureState;
+            // const changeX = Math.floor(dx);
+            const changeY = Math.floor(-dy);
+            // console.log('changeX:', changeX, ', changeY:', changeY);
+            if (between(changeY, 80, 90) || between(changeY, -90, -80)) {
+                animateRotation1(Math.sign(changeY) * 36);
+            }
+
+            // if (between(changeX, 80, 90) || between(changeX, -90, -80)) {
+            //     animateRotation1(Math.sign(changeX) * 36);
+            // }
         },
         onMoveShouldSetPanResponder: (evt, gestureState) => {
             // return true if user is swiping, return false if it's a single click
@@ -53,6 +60,10 @@ export default function App() {
     return (
         <View style={styles.container}>
             <Animated.View
+                onLayout={({ nativeEvent }) => {
+                    console.log('hi there');
+                    console.log('xxx:', nativeEvent.layout.y);
+                }}
                 style={[styles.blackCircle1, animatedRotation1]}
                 {...panResponder1.panHandlers}>
                 <View
