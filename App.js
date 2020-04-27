@@ -93,6 +93,10 @@ export default function App() {
     const calcTransform = (interval) => ({
         transform: [{ rotate: calcDeg(interval) }],
     });
+    const calcDeg2 = (interval) => `${15 * interval}deg`;
+    const calcTransform2 = (interval) => ({
+        transform: [{ rotate: calcDeg2(interval) }],
+    });
 
     const animatedRotation1 = { transform: [{ rotate: interpolateRotation }] };
     const animatedColor1 = { backgroundColor: interpolateColor };
@@ -100,6 +104,214 @@ export default function App() {
     return (
         <Animated.View style={[styles.container, animatedColor1]}>
             <Animated.View style={[styles.blackCircle2]}>
+                <View style={[styles.setting2, calcTransform2(0)]}>
+                    <TouchableOpacity
+                        onPress={() => {
+                            const val = 36 * -4;
+                            // rotateTo1(val);
+                            animateColor1();
+                        }}
+                        style={styles.setting1Left}>
+                        <Text style={styles.buttonText}>0</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => {
+                            const val = 36 * -9;
+                            // rotateTo1(val);
+                            animateColor1();
+                        }}
+                        style={styles.setting1Right}>
+                        <Text style={[styles.buttonText, styles.rotateText]}>*</Text>
+                    </TouchableOpacity>
+                </View>
+                <View style={[styles.setting2, calcTransform2(1)]}>
+                    <TouchableOpacity
+                        onPress={() => {
+                            const val = 36 * -4;
+                            // rotateTo1(val);
+                            animateColor1();
+                        }}
+                        style={styles.setting1Left}>
+                        <Text style={styles.buttonText}>-</Text>
+                    </TouchableOpacity>
+                    <View style={styles.setting1Right} />
+                </View>
+                <View style={[styles.setting2, calcTransform2(2)]}>
+                    <TouchableOpacity
+                        onPress={() => {
+                            const val = 36 * -4;
+                            // rotateTo1(val);
+                            animateColor1();
+                        }}
+                        style={styles.setting1Left}>
+                        <Text style={styles.buttonText}>-</Text>
+                    </TouchableOpacity>
+                    <View style={styles.setting1Right} />
+                </View>
+                <View style={[styles.setting2, calcTransform2(3)]}>
+                    <TouchableOpacity
+                        onPress={() => {
+                            const val = 36 * -4;
+                            // rotateTo1(val);
+                            animateColor1();
+                        }}
+                        style={styles.setting1Left}>
+                        <Text style={styles.buttonText}>+1</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => {
+                            const val = 36 * -9;
+                            // rotateTo1(val);
+                            animateColor1();
+                        }}
+                        style={styles.setting1Right}>
+                        <Text style={[styles.buttonText, styles.rotateText]}>-3</Text>
+                    </TouchableOpacity>
+                </View>
+                <View style={[styles.setting2, calcTransform2(4)]}>
+                    <TouchableOpacity
+                        onPress={() => {
+                            const val = 36 * -4;
+                            // rotateTo1(val);
+                            animateColor1();
+                        }}
+                        style={styles.setting1Left}>
+                        <Text style={styles.buttonText}>-</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => {
+                            const val = 36 * -9;
+                            // rotateTo1(val);
+                            animateColor1();
+                        }}
+                        style={styles.setting1Right}>
+                        <Text style={[styles.buttonText, styles.rotateText]}>-</Text>
+                    </TouchableOpacity>
+                </View>
+                <View style={[styles.setting2, calcTransform2(5)]}>
+                    <TouchableOpacity
+                        onPress={() => {
+                            const val = 36 * -4;
+                            // rotateTo1(val);
+                            animateColor1();
+                        }}
+                        style={styles.setting1Left}>
+                        <Text style={styles.buttonText}>-</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => {
+                            const val = 36 * -9;
+                            // rotateTo1(val);
+                            animateColor1();
+                        }}
+                        style={styles.setting1Right}>
+                        <Text style={[styles.buttonText, styles.rotateText]}>-</Text>
+                    </TouchableOpacity>
+                </View>
+                <View style={[styles.setting2, calcTransform2(6)]}>
+                    <TouchableOpacity
+                        onPress={() => {
+                            const val = 36 * -4;
+                            // rotateTo1(val);
+                            animateColor1();
+                        }}
+                        style={styles.setting1Left}>
+                        <Text style={styles.buttonText}>+2</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => {
+                            const val = 36 * -9;
+                            // rotateTo1(val);
+                            animateColor1();
+                        }}
+                        style={styles.setting1Right}>
+                        <Text style={[styles.buttonText, styles.rotateText]}>-2</Text>
+                    </TouchableOpacity>
+                </View>
+                <View style={[styles.setting2, calcTransform2(7)]}>
+                    <TouchableOpacity
+                        onPress={() => {
+                            const val = 36 * -4;
+                            // rotateTo1(val);
+                            animateColor1();
+                        }}
+                        style={styles.setting1Left}>
+                        <Text style={styles.buttonText}>-</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => {
+                            const val = 36 * -9;
+                            // rotateTo1(val);
+                            animateColor1();
+                        }}
+                        style={styles.setting1Right}>
+                        <Text style={[styles.buttonText, styles.rotateText]}>-</Text>
+                    </TouchableOpacity>
+                </View>
+                <View style={[styles.setting2, calcTransform2(8)]}>
+                    <TouchableOpacity
+                        onPress={() => {
+                            const val = 36 * -4;
+                            // rotateTo1(val);
+                            animateColor1();
+                        }}
+                        style={styles.setting1Left}>
+                        <Text style={styles.buttonText}>-</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => {
+                            const val = 36 * -9;
+                            // rotateTo1(val);
+                            animateColor1();
+                        }}
+                        style={styles.setting1Right}>
+                        <Text style={[styles.buttonText, styles.rotateText]}>-</Text>
+                    </TouchableOpacity>
+                </View>
+                <View style={[styles.setting2, calcTransform2(9)]}>
+                    <TouchableOpacity
+                        onPress={() => {
+                            const val = 36 * -4;
+                            // rotateTo1(val);
+                            animateColor1();
+                        }}
+                        style={styles.setting1Left}>
+                        <Text style={styles.buttonText}>+3</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => {
+                            const val = 36 * -9;
+                            // rotateTo1(val);
+                            animateColor1();
+                        }}
+                        style={styles.setting1Right}>
+                        <Text style={[styles.buttonText, styles.rotateText]}>-1</Text>
+                    </TouchableOpacity>
+                </View>
+                <View style={[styles.setting2, calcTransform2(10)]}>
+                    <View style={styles.setting1Left} />
+                    <TouchableOpacity
+                        onPress={() => {
+                            const val = 36 * -9;
+                            // rotateTo1(val);
+                            animateColor1();
+                        }}
+                        style={styles.setting1Right}>
+                        <Text style={[styles.buttonText, styles.rotateText]}>-</Text>
+                    </TouchableOpacity>
+                </View>
+                <View style={[styles.setting2, calcTransform2(11)]}>
+                    <View style={styles.setting1Left} />
+                    <TouchableOpacity
+                        onPress={() => {
+                            const val = 36 * -9;
+                            // rotateTo1(val);
+                            animateColor1();
+                        }}
+                        style={styles.setting1Right}>
+                        <Text style={[styles.buttonText, styles.rotateText]}>-</Text>
+                    </TouchableOpacity>
+                </View>
                 <Animated.View
                     onLayout={({ nativeEvent }) => {
                         console.log('hi there');
@@ -218,26 +430,6 @@ export default function App() {
                         </TouchableOpacity>
                     </View>
                 </Animated.View>
-                <View style={[styles.setting2, calcTransform(0)]}>
-                    <TouchableOpacity
-                        onPress={() => {
-                            const val = 36 * -4;
-                            // rotateTo1(val);
-                            animateColor1();
-                        }}
-                        style={styles.setting1Left}>
-                        <Text style={styles.buttonText}>+1</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        onPress={() => {
-                            const val = 36 * -9;
-                            // rotateTo1(val);
-                            animateColor1();
-                        }}
-                        style={styles.setting1Right}>
-                        <Text style={[styles.buttonText, styles.rotateText]}>+2</Text>
-                    </TouchableOpacity>
-                </View>
             </Animated.View>
         </Animated.View>
     );
