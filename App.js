@@ -10,16 +10,16 @@ import {
 
 export default function App() {
     const rotation1 = new Animated.Value(0);
+    const animationDefaults = {
+        duration: 90,
+        useNativeDriver: true,
+    };
     let rotation1Value = 0;
     let responder1Timeout;
     const between = (x, min, max) => x >= min && x <= max;
     const animateRotation1 = (valueAdd) => {
         rotation1Value += valueAdd
-        Animated.timing(rotation1, {
-            toValue: rotation1Value,
-            duration: 90,
-            useNativeDriver: true,
-        }).start();
+        Animated.timing(rotation1, { toValue: rotation1Value, ...animationDefaults }).start();
     };
     let pause = false;
     const panResponder1 = PanResponder.create({
@@ -52,6 +52,11 @@ export default function App() {
         },
     });
 
+    const rotateTo1 = (degree) => {
+        rotation1Value = degree;
+        Animated.timing(rotation1, { toValue: rotation1Value, ...animationDefaults }).start();
+    };
+
     const interpolateRotation = rotation1.interpolate({
         // acceptable range of pan responder values
         inputRange: [-360, 360],
@@ -75,7 +80,7 @@ export default function App() {
                         styles.setting1,
                         { transform: [{ rotate: `${36 * 0}deg` }] },
                     ]}>
-                    <TouchableOpacity style={styles.setting1Left}>
+                    <TouchableOpacity onPress={() => rotateTo1(36 * 0)} style={styles.setting1Left}>
                         <Text style={styles.buttonText}>Av</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.setting1Right}>
