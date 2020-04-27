@@ -21,6 +21,7 @@ export default function App() {
             useNativeDriver: true,
         }).start();
     };
+    let pause = false;
     const panResponder1 = PanResponder.create({
         onStartShouldSetPanResponder: (evt, gestureState) => true,
         onPanResponderGrant: async (evt, gestureState) => {
@@ -30,17 +31,20 @@ export default function App() {
             console.log('pageX:', pageX, ', pageY:', pageY);
         },
         onPanResponderMove: (evt, gestureState) => {
-            const { dy } = gestureState;
-            // const changeX = Math.floor(dx);
+            if (pause) return;
+            const { dx, dy } = gestureState;
             const changeY = Math.floor(-dy);
-            // console.log('changeX:', changeX, ', changeY:', changeY);
-            if (between(changeY, 80, 90) || between(changeY, -90, -80)) {
+            const changeX = Math.floor(-dx);
+            if (changeY > 90 || changeY < -90) {
                 animateRotation1(Math.sign(changeY) * 36);
+                pause = true;
+                return setTimeout(() => pause = false, 300);
             }
-
-            // if (between(changeX, 80, 90) || between(changeX, -90, -80)) {
-            //     animateRotation1(Math.sign(changeX) * 36);
-            // }
+            if (changeX > 90 || changeX < -90) {
+                animateRotation1(Math.sign(changeX) * -36);
+                pause = true;
+                return setTimeout(() => pause = false, 300);
+            }
         },
         onMoveShouldSetPanResponder: (evt, gestureState) => {
             // return true if user is swiping, return false if it's a single click
