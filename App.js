@@ -39,6 +39,7 @@ export default function App() {
         }).start();
     };
     const animateRotation3 = (valueAdd) => {
+        console.log('animateRotation3', rotation3Value, valueAdd);
         rotation3Value -= valueAdd;
         Animated.timing(rotation3, {
             toValue: rotation3Value,
@@ -143,9 +144,9 @@ export default function App() {
             duration: 400,
             useNativeDriver: true,
         }).start();
-        rotation3Value = degree;
+        rotation3Value = -degree;
         Animated.timing(rotation3, {
-            toValue: -rotation3Value,
+            toValue: rotation3Value,
             ...animationDefaults,
         }).start();
     };
