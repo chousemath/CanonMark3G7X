@@ -184,42 +184,53 @@ export default function App() {
     const animatedRotation3 = { transform: [{ rotate: interpolateRotation3 }] };
     const animatedColor1 = { backgroundColor: interpolateColor };
 
+    const outerWheelButton = (text, onPress, side) => {
+        if (Boolean(text) && Boolean(onPress) && Boolean(side)) {
+            return (<TouchableOpacity
+                onPress={onPress}
+                style={{
+                    ...(side === 'left' ? styles.setting1Left : styles.setting1Right),
+                    ...(side === 'right' ? styles.rotateText : {}),
+                }}>
+                <Text style={styles.buttonText}>{text}</Text>
+            </TouchableOpacity>);
+        }
+        return <View style={side === 'left' ? styles.setting1Left : styles.setting1Right}/>
+    };
+    const isNum = val => typeof val === 'number';
+    const outerWheelOption = ({
+        transformVal,
+        rotateLeft,
+        rotateRight,
+        textLeft,
+        textRight,
+    }) => {
+        const onPressLeft = isNum(rotateLeft) ?  () => {
+            rotateTo2(15 * rotateLeft);
+            animateColor1();
+        } : null;
+        const onPressRight = isNum(rotateRight) ?  () => {
+            rotateTo2(15 * rotateRight);
+            animateColor1();
+        } : null;
+        return (
+            <View 
+                {...panResponder2.panHandlers}
+                style={[styles.setting2, calcTransform2(transformVal)]}>
+                {outerWheelButton(textLeft, onPressLeft, 'left')}
+                {outerWheelButton(textRight, onPressRight, 'right')}
+            </View>
+        );
+    };
+
+    const outerWheelItems = [
+        {rotateLeft: 0, rotateRight: 12, textLeft: '0', textRight: '*'},
+        {rotateLeft: -1, rotateRight: null, textLeft: '-', textRight: null},
+    ];
     return (
         <Animated.View style={[styles.container, animatedColor1]}>
             <Animated.View style={[styles.blackCircle2, animatedRotation2]}>
-                <View 
-                    {...panResponder2.panHandlers}
-                    style={[styles.setting2, calcTransform2(0)]}>
-                    <TouchableOpacity
-                        onPress={() => {
-                            rotateTo2(15 * 0);
-                            animateColor1();
-                        }}
-                        style={styles.setting1Left}>
-                        <Text style={styles.buttonText}>0</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        onPress={() => {
-                            rotateTo2(15 * 12);
-                            animateColor1();
-                        }}
-                        style={styles.setting1Right}>
-                        <Text style={[styles.buttonText, styles.rotateText]}>*</Text>
-                    </TouchableOpacity>
-                </View>
-                <View
-                    {...panResponder2.panHandlers}
-                    style={[styles.setting2, calcTransform2(1)]}>
-                    <TouchableOpacity
-                        onPress={() => {
-                            rotateTo2(15 * -1);
-                            animateColor1();
-                        }}
-                        style={styles.setting1Left}>
-                        <Text style={styles.buttonText}>-</Text>
-                    </TouchableOpacity>
-                    <View style={styles.setting1Right} />
-                </View>
+                {outerWheelItems.map((item, i) => outerWheelOption({...item, transformVal: i}))}
                 <View
                     {...panResponder2.panHandlers}
                     style={[styles.setting2, calcTransform2(2)]}>
