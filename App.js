@@ -10,41 +10,42 @@ import {
 } from 'react-native';
 const images = {
     'video-camera': require('./images/video-camera.png'),
-    'camera': require('./images/camera.png'),
+    camera: require('./images/camera.png'),
     'venn-diagram': require('./images/venn-diagram.png'),
 };
 
 export default function App() {
-    const rotation1 = new Animated.Value(0);
-    const rotation2 = new Animated.Value(0);
-    const rotation3 = new Animated.Value(0);
+    const rotations = {
+        inner: new Animated.Value(0),
+        outer: new Animated.Value(0),
+        compensator: new Animated.Value(0),
+    };
     const color1 = new Animated.Value(0);
     const animationDefaults = { duration: 90, useNativeDriver: true };
-    let rotation1Value = 0;
-    let rotation2Value = 0;
-    let rotation3Value = 0;
+    const rotValues = { inner: 0, outer: 0, compensator: 0 };
     const between = (x, min, max) => x >= min && x <= max;
-    const animateRotation1 = (valueAdd) => {
-        rotation1Value += valueAdd;
-        Animated.timing(rotation1, {
-            toValue: rotation1Value,
-            ...animationDefaults,
-        }).start();
-    };
-    const animateRotation2 = (valueAdd) => {
-        rotation2Value += valueAdd;
-        Animated.timing(rotation2, {
-            toValue: rotation2Value,
-            ...animationDefaults,
-        }).start();
-    };
-    const animateRotation3 = (valueAdd) => {
-        console.log('animateRotation3', rotation3Value, valueAdd);
-        rotation3Value -= valueAdd;
-        Animated.timing(rotation3, {
-            toValue: rotation3Value,
-            ...animationDefaults,
-        }).start();
+    const animate = {
+        inner: (v) => {
+            rotValues.inner += v;
+            Animated.timing(rotations.inner, {
+                toValue: rotValues.inner,
+                ...animationDefaults,
+            }).start();
+        },
+        outer: (v) => {
+            rotValues.outer += v;
+            Animated.timing(rotations.outer, {
+                toValue: rotValues.outer,
+                ...animationDefaults,
+            }).start();
+        },
+        compensator: (v) => {
+            rotValues.compensator -= v;
+            Animated.timing(rotations.compensator, {
+                toValue: rotValues.compensator,
+                ...animationDefaults,
+            }).start();
+        },
     };
     const randomChannel = () => Math.round(255 * Math.random());
     const interpolateColor = color1.interpolate({
@@ -76,13 +77,13 @@ export default function App() {
             const changeY = Math.floor(-dy);
             const changeX = Math.floor(-dx);
             if (changeY > 60 || changeY < -60) {
-                animateRotation1(Math.sign(changeY) * 36);
+                animate.inner(Math.sign(changeY) * 36);
                 animateColor1();
                 pause = true;
                 return setTimeout(() => (pause = false), 300);
             }
             if (changeX > 90 || changeX < -90) {
-                animateRotation1(Math.sign(changeX) * -36);
+                animate.inner(Math.sign(changeX) * -36);
                 animateColor1();
                 pause = true;
                 return setTimeout(() => (pause = false), 300);
@@ -108,16 +109,16 @@ export default function App() {
             const changeX = Math.floor(-dx);
             if (changeY > 60 || changeY < -60) {
                 const val = Math.sign(changeY) * 15;
-                animateRotation2(val);
-                animateRotation3(val);
+                animate.outer(val);
+                animate.compensator(val);
                 animateColor1();
                 pause = true;
                 return setTimeout(() => (pause = false), 300);
             }
             if (changeX > 90 || changeX < -90) {
                 const val = Math.sign(changeX) * -15;
-                animateRotation2(val);
-                animateRotation3(val);
+                animate.outer(val);
+                animate.compensator(val);
                 animateColor1();
                 pause = true;
                 return setTimeout(() => (pause = false), 300);
@@ -130,40 +131,40 @@ export default function App() {
     });
 
     const rotateTo1 = (degree) => {
-        rotation1Value = degree;
-        Animated.timing(rotation1, {
-            toValue: rotation1Value,
+        rotValues.inner = degree;
+        Animated.timing(rotations.inner, {
+            toValue: rotValues.inner,
             duration: 400,
             useNativeDriver: true,
         }).start();
     };
-    const rotateTo2 = degree => {
-        rotation2Value = degree;
-        Animated.timing(rotation2, {
-            toValue: rotation2Value,
+    const rotateTo2 = (degree) => {
+        rotValues.outer = degree;
+        Animated.timing(rotations.outer, {
+            toValue: rotValues.outer,
             duration: 400,
             useNativeDriver: true,
         }).start();
-        rotation3Value = -degree;
-        Animated.timing(rotation3, {
-            toValue: rotation3Value,
+        rotValues.compensator = -degree;
+        Animated.timing(rotations.compensator, {
+            toValue: rotValues.compensator,
             ...animationDefaults,
         }).start();
     };
 
-    const interpolateRotation = rotation1.interpolate({
+    const interpolateRotation = rotations.inner.interpolate({
         // acceptable range of pan responder values
         inputRange: [-360, 360],
         // acceptable degree changes
         outputRange: ['-360deg', '360deg'],
     });
-    const interpolateRotation2 = rotation2.interpolate({
+    const interpolateRotation2 = rotations.outer.interpolate({
         // acceptable range of pan responder values
         inputRange: [-360, 360],
         // acceptable degree changes
         outputRange: ['-360deg', '360deg'],
     });
-    const interpolateRotation3 = rotation3.interpolate({
+    const interpolateRotation3 = rotations.compensator.interpolate({
         // acceptable range of pan responder values
         inputRange: [-360, 360],
         // acceptable degree changes
@@ -186,20 +187,33 @@ export default function App() {
 
     const outerWheelButton = (text, onPress, side) => {
         if (Boolean(text) && Boolean(onPress) && Boolean(side)) {
-            return (<TouchableOpacity
-                onPress={onPress}
-                style={{
-                    ...(side === 'left' ? styles.setting1Left : styles.setting1Right),
-                }}>
-                <Text style={{
-                    ...styles.buttonText,
-                    ...(side === 'right' ? styles.rotateText : {}),
-                }}>{text}</Text>
-            </TouchableOpacity>);
+            return (
+                <TouchableOpacity
+                    onPress={onPress}
+                    style={{
+                        ...(side === 'left'
+                            ? styles.setting1Left
+                            : styles.setting1Right),
+                    }}>
+                    <Text
+                        style={{
+                            ...styles.buttonText,
+                            ...(side === 'right' ? styles.rotateText : {}),
+                        }}>
+                        {text}
+                    </Text>
+                </TouchableOpacity>
+            );
         }
-        return <View style={side === 'left' ? styles.setting1Left : styles.setting1Right}/>
+        return (
+            <View
+                style={
+                    side === 'left' ? styles.setting1Left : styles.setting1Right
+                }
+            />
+        );
     };
-    const isNum = val => typeof val === 'number';
+    const isNum = (val) => typeof val === 'number';
     const outerWheelOption = ({
         transformVal,
         rotateLeft,
@@ -207,16 +221,20 @@ export default function App() {
         textLeft,
         textRight,
     }) => {
-        const onPressLeft = isNum(rotateLeft) ?  () => {
-            rotateTo2(15 * rotateLeft);
-            animateColor1();
-        } : null;
-        const onPressRight = isNum(rotateRight) ?  () => {
-            rotateTo2(15 * rotateRight);
-            animateColor1();
-        } : null;
+        const onPressLeft = isNum(rotateLeft)
+            ? () => {
+                  rotateTo2(15 * rotateLeft);
+                  animateColor1();
+              }
+            : null;
+        const onPressRight = isNum(rotateRight)
+            ? () => {
+                  rotateTo2(15 * rotateRight);
+                  animateColor1();
+              }
+            : null;
         return (
-            <View 
+            <View
                 key={`outerwheel-${transformVal.toString()}`}
                 {...panResponder2.panHandlers}
                 style={[styles.setting2, calcTransform2(transformVal)]}>
@@ -227,148 +245,176 @@ export default function App() {
     };
 
     const outerWheelItems = [
-        {rotateLeft: 0, rotateRight: 12, textLeft: '0', textRight: '*'},
-        {rotateLeft: -1, rotateRight: null, textLeft: '-', textRight: null},
-        {rotateLeft: -2, rotateRight: null, textLeft: '-', textRight: null},
-        {rotateLeft: -3, rotateRight: 9, textLeft: '+1', textRight: '-3'},
-        {rotateLeft: -4, rotateRight: 8, textLeft: '-', textRight: '-'},
-        {rotateLeft: -5, rotateRight: 7, textLeft: '-', textRight: '-'},
-        {rotateLeft: -6, rotateRight: 6, textLeft: '+2', textRight: '-2'},
-        {rotateLeft: -7, rotateRight: 5, textLeft: '-', textRight: '-'},
-        {rotateLeft: -8, rotateRight: 4, textLeft: '-', textRight: '-'},
-        {rotateLeft: -9, rotateRight: 3, textLeft: '+3', textRight: '-1'},
-        {rotateLeft: null, rotateRight: 2, textLeft: null, textRight: '-'},
-        {rotateLeft: null, rotateRight: 1, textLeft: null, textRight: '-'},
+        { rotateLeft: 0, rotateRight: 12, textLeft: '0', textRight: '*' },
+        { rotateLeft: -1, rotateRight: null, textLeft: '-', textRight: null },
+        { rotateLeft: -2, rotateRight: null, textLeft: '-', textRight: null },
+        { rotateLeft: -3, rotateRight: 9, textLeft: '+1', textRight: '-3' },
+        { rotateLeft: -4, rotateRight: 8, textLeft: '-', textRight: '-' },
+        { rotateLeft: -5, rotateRight: 7, textLeft: '-', textRight: '-' },
+        { rotateLeft: -6, rotateRight: 6, textLeft: '+2', textRight: '-2' },
+        { rotateLeft: -7, rotateRight: 5, textLeft: '-', textRight: '-' },
+        { rotateLeft: -8, rotateRight: 4, textLeft: '-', textRight: '-' },
+        { rotateLeft: -9, rotateRight: 3, textLeft: '+3', textRight: '-1' },
+        { rotateLeft: null, rotateRight: 2, textLeft: null, textRight: '-' },
+        { rotateLeft: null, rotateRight: 1, textLeft: null, textRight: '-' },
     ];
     return (
         <Animated.View style={[styles.container, animatedColor1]}>
             <Animated.View style={[styles.blackCircle2, animatedRotation2]}>
-                {outerWheelItems.map((item, i) => outerWheelOption({...item, transformVal: i}))}
-                <Animated.View style={[styles.blackCircle1Container, animatedRotation3]}>
+                {outerWheelItems.map((item, i) =>
+                    outerWheelOption({ ...item, transformVal: i }),
+                )}
                 <Animated.View
-                    onLayout={({ nativeEvent }) => {
-                        console.log('hi there');
-                        console.log('xxx:', nativeEvent.layout.y);
-                    }}
-                    style={[styles.blackCircle1, animatedRotation1]}
-                    {...panResponder1.panHandlers}>
-                    <View style={[styles.setting1, calcTransform(0)]}>
-                        <TouchableOpacity
-                            onPress={() => {
-                                const val = 36 * 0;
-                                rotateTo1(val);
-                                animateColor1();
-                            }}
-                            style={styles.setting1Left}>
-                            <Text style={styles.buttonText}>Av</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            onPress={() => {
-                                const val = 36 * 5;
-                                rotateTo1(val);
-                                animateColor1();
-                            }}
-                            style={styles.setting1Right}>
-                            <Text style={[styles.buttonText, styles.rotateText]}>
-                                SCN
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
-                    <View style={[styles.setting1, calcTransform(1)]}>
-                        <TouchableOpacity
-                            onPress={() => {
-                                const val = 36 * -1;
-                                rotateTo1(val);
-                                animateColor1();
-                            }}
-                            style={styles.setting1Left}>
-                            <Text style={styles.buttonText}>M</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            onPress={() => {
-                                const val = 36 * -6;
-                                rotateTo1(val);
-                                animateColor1();
-                            }}
-                            style={styles.setting1Right}>
-                            <Image source={images['camera']} style={{
-                                ...styles.icon,
-                                transform: [{rotate: '180deg'}],
-                            }} />
-                        </TouchableOpacity>
-                    </View>
-                    <View style={[styles.setting1, calcTransform(2)]}>
-                        <TouchableOpacity
-                            onPress={() => {
-                                const val = 36 * -2;
-                                rotateTo1(val);
-                                animateColor1();
-                            }}
-                            style={styles.setting1Left}>
-                            <Text style={styles.buttonText}>C</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            onPress={() => {
-                                const val = 36 * -7;
-                                rotateTo1(val);
-                                animateColor1();
-                            }}
-                            style={styles.setting1Right}>
-                            <View style={styles.autoContainer}>
-                                <Text style={[styles.buttonText, styles.rotateText]}>
-                                    AUTO
+                    style={[styles.blackCircle1Container, animatedRotation3]}>
+                    <Animated.View
+                        onLayout={({ nativeEvent }) => {
+                            console.log('hi there');
+                            console.log('xxx:', nativeEvent.layout.y);
+                        }}
+                        style={[styles.blackCircle1, animatedRotation1]}
+                        {...panResponder1.panHandlers}>
+                        <View style={[styles.setting1, calcTransform(0)]}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    const val = 36 * 0;
+                                    rotateTo1(val);
+                                    animateColor1();
+                                }}
+                                style={styles.setting1Left}>
+                                <Text style={styles.buttonText}>Av</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    const val = 36 * 5;
+                                    rotateTo1(val);
+                                    animateColor1();
+                                }}
+                                style={styles.setting1Right}>
+                                <Text
+                                    style={[
+                                        styles.buttonText,
+                                        styles.rotateText,
+                                    ]}>
+                                    SCN
                                 </Text>
-                            </View>
-                        </TouchableOpacity>
-                    </View>
-                    <View style={[styles.setting1, calcTransform(3)]}>
-                        <TouchableOpacity
-                            onPress={() => {
-                                const val = 36 * -3;
-                                rotateTo1(val);
-                                animateColor1();
-                            }}
-                            style={styles.setting1Left}>
-                            <Image source={images['video-camera']} style={styles.icon} />
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            onPress={() => {
-                                const val = 36 * -8;
-                                rotateTo1(val);
-                                animateColor1();
-                            }}
-                            style={styles.setting1Right}>
-                            <Text style={[styles.buttonText, styles.rotateText]}>
-                                P
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
-                    <View style={[styles.setting1, calcTransform(4)]}>
-                        <TouchableOpacity
-                            onPress={() => {
-                                const val = 36 * -4;
-                                rotateTo1(val);
-                                animateColor1();
-                            }}
-                            style={styles.setting1Left}>
-                            <Image source={images['venn-diagram']} style={styles.icon} />
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            onPress={() => {
-                                const val = 36 * -9;
-                                rotateTo1(val);
-                                animateColor1();
-                            }}
-                            style={styles.setting1Right}>
-                            <Text style={[styles.buttonText, styles.rotateText]}>
-                                Tv
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={[styles.setting1, calcTransform(1)]}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    const val = 36 * -1;
+                                    rotateTo1(val);
+                                    animateColor1();
+                                }}
+                                style={styles.setting1Left}>
+                                <Text style={styles.buttonText}>M</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    const val = 36 * -6;
+                                    rotateTo1(val);
+                                    animateColor1();
+                                }}
+                                style={styles.setting1Right}>
+                                <Image
+                                    source={images['camera']}
+                                    style={{
+                                        ...styles.icon,
+                                        transform: [{ rotate: '180deg' }],
+                                    }}
+                                />
+                            </TouchableOpacity>
+                        </View>
+                        <View style={[styles.setting1, calcTransform(2)]}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    const val = 36 * -2;
+                                    rotateTo1(val);
+                                    animateColor1();
+                                }}
+                                style={styles.setting1Left}>
+                                <Text style={styles.buttonText}>C</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    const val = 36 * -7;
+                                    rotateTo1(val);
+                                    animateColor1();
+                                }}
+                                style={styles.setting1Right}>
+                                <View style={styles.autoContainer}>
+                                    <Text
+                                        style={[
+                                            styles.buttonText,
+                                            styles.rotateText,
+                                        ]}>
+                                        AUTO
+                                    </Text>
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={[styles.setting1, calcTransform(3)]}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    const val = 36 * -3;
+                                    rotateTo1(val);
+                                    animateColor1();
+                                }}
+                                style={styles.setting1Left}>
+                                <Image
+                                    source={images['video-camera']}
+                                    style={styles.icon}
+                                />
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    const val = 36 * -8;
+                                    rotateTo1(val);
+                                    animateColor1();
+                                }}
+                                style={styles.setting1Right}>
+                                <Text
+                                    style={[
+                                        styles.buttonText,
+                                        styles.rotateText,
+                                    ]}>
+                                    P
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={[styles.setting1, calcTransform(4)]}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    const val = 36 * -4;
+                                    rotateTo1(val);
+                                    animateColor1();
+                                }}
+                                style={styles.setting1Left}>
+                                <Image
+                                    source={images['venn-diagram']}
+                                    style={styles.icon}
+                                />
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    const val = 36 * -9;
+                                    rotateTo1(val);
+                                    animateColor1();
+                                }}
+                                style={styles.setting1Right}>
+                                <Text
+                                    style={[
+                                        styles.buttonText,
+                                        styles.rotateText,
+                                    ]}>
+                                    Tv
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    </Animated.View>
                 </Animated.View>
             </Animated.View>
         </Animated.View>
-    </Animated.View>
     );
 }
 
@@ -386,7 +432,7 @@ const styles = StyleSheet.create({
         width: circle2Height,
         height: circle2Height,
         backgroundColor: '#151515',
-        borderRadius: circle2Height/2,
+        borderRadius: circle2Height / 2,
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
@@ -395,7 +441,7 @@ const styles = StyleSheet.create({
     },
     setting2: {
         position: 'absolute',
-        top: circle2Height/2- setting1Height/2,
+        top: circle2Height / 2 - setting1Height / 2,
         width: circle2Height,
         height: setting1Height,
         backgroundColor: 'transparent',
@@ -406,7 +452,7 @@ const styles = StyleSheet.create({
         width: circle1Height,
         height: circle1Height,
         backgroundColor: '#000',
-        borderRadius: circle1Height/2,
+        borderRadius: circle1Height / 2,
         position: 'relative',
         overflow: 'hidden',
     },
@@ -414,7 +460,7 @@ const styles = StyleSheet.create({
         width: circle1Height,
         height: circle1Height,
         backgroundColor: '#000',
-        borderRadius: circle1Height/2,
+        borderRadius: circle1Height / 2,
         overflow: 'hidden',
         display: 'flex',
         justifyContent: 'center',
@@ -422,7 +468,7 @@ const styles = StyleSheet.create({
     },
     setting1: {
         position: 'absolute',
-        top: circle1Height/2 - setting1Height/2,
+        top: circle1Height / 2 - setting1Height / 2,
         width: circle1Height,
         height: setting1Height,
         backgroundColor: 'transparent',
